@@ -12,6 +12,7 @@ import math
 import imutils
 import classifieurs.network as net
 import som_gui as sg
+import err_som_gui as errsg
 
 
 from caracteristique.caracteristique import caracteristique
@@ -123,6 +124,8 @@ if __name__ == '__main__':
     interface = sg.GuiSom((N, N, lmk.sizeData), args["elasticity"], args["learning_rate"], 
                           args["initial_method"], "DSOM", width=550)
 
+    errInterface = errsg.ErrGuiSom()
+
     print(" paramêtres vidéocapture : ", (args["video"], args["camera"])[args["video"] is None])
     vs = cv2.VideoCapture((args["video"], args["camera"])[args["video"] is None])
 
@@ -170,6 +173,8 @@ if __name__ == '__main__':
             # print("winner : ", winner)
             frame = lmk.insert_salient(frame, winner)
 
+            errInterface.plot_err(interface.distance)
+
             if not started:
                 dr.start()
                 started = True
@@ -186,6 +191,7 @@ if __name__ == '__main__':
         #Mise à jour fenêtre neurones
         #interface.update()
         interface.show_som_view()
+        errInterface.show_err_som_view()
         
         # Attendre la touche 'q' pour sortir
         # ou la touche 'p' pour suspendre le programme
@@ -213,7 +219,10 @@ if __name__ == '__main__':
 
         if car=="w": # Affichage répartition des vainqueurs
             interface.print_win()
-        
+
+        if car=="e": #change l'affichage entre les 50 derniers point et la vue globale
+            errInterface.changeView()
+
         if key == 113 or car=='q':
             break
 
