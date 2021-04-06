@@ -352,14 +352,16 @@ class DSOM(MAP):
             for j in range(1,shape[1]):
                 temp += ((self.codebook[i, j] - self.codebook[i, j-1]) ** 2).sum(axis=-1)
                 distNetwork[i, j, 0] = temp
-            distNetwork[i, :, 0] = distNetwork[i, :, 0]/temp
+        maxi = np.max(distNetwork[:,:,0])
+        distNetwork[:, :, 0] = distNetwork[:, :, 0]/maxi
 
         for j in range(0, shape[1]):
             temp = 0;
             for i in range(1,shape[1]):
                 temp += ((self.codebook[i, j] - self.codebook[i-1, j]) ** 2).sum(axis=-1)
                 distNetwork[i, j, 1] = temp
-            distNetwork[:, j, 1] = distNetwork[:, j, 1]/temp
+        maxi = np.max(distNetwork[:,:,1])
+        distNetwork[:, :, 1] = distNetwork[:, :, 1]/maxi
 
         return distNetwork
 

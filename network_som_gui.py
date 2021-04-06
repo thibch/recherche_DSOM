@@ -16,7 +16,20 @@ class NetworkGuiSom():
 
 	def update(self,distanceNetwork):
 		fig = plt.figure()
+		shape = distanceNetwork.shape
+		for i in range(shape[0]):
+			for j in range(shape[1]):
+				if(i < shape[0] - 1):
+					x = (distanceNetwork[i, j , 0],distanceNetwork[i+1, j , 0])
+					y = (distanceNetwork[i, j , 1],distanceNetwork[i+1, j , 1])
+					plt.plot(x,y,'b')
+				if(j < shape[1] - 1 ):
+					x = (distanceNetwork[i, j , 0],distanceNetwork[i, j + 1, 0])
+					y = (distanceNetwork[i, j , 1],distanceNetwork[i, j + 1, 1])
+					plt.plot(x,y,'b')
+
 		plt.scatter(distanceNetwork[:,:,0],distanceNetwork[:,:,1])
+
 		fig.canvas.draw()
 		img = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
 		img = img.reshape(fig.canvas.get_width_height()[::-1] + (3,))
