@@ -178,7 +178,8 @@ if __name__ == '__main__':
 
             errInterface.plot_err(interface.distance)
 
-            networkInterface.update(interface.network.distance_network())
+            net1,net2 = interface.network.distance_network()
+            networkInterface.update(net1,net2)
 
             if not started:
                 dr.start()

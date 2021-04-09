@@ -343,27 +343,38 @@ class DSOM(MAP):
         return winner, d[winner]
 
     def distance_network(self):
+
         shape = self.codebook.shape
 
 
-        distNetwork = np.zeros((shape[1],shape[1],2))
+        distNetwork1 = np.zeros((shape[1],shape[1],2))
+        distNetwork2 = np.zeros((shape[1],shape[1],2))
+
         for i in range(0, shape[1]):
             temp = 0;
             for j in range(1,shape[1]):
                 temp += ((self.codebook[i, j] - self.codebook[i, j-1]) ** 2).sum(axis=-1)
-                distNetwork[i, j, 0] = temp
-        maxi = np.max(distNetwork[:,:,0])
-        distNetwork[:, :, 0] = distNetwork[:, :, 0]/maxi
+                distNetwork1[i, j, 0] = temp
+                distNetwork2[i, j, 0] = temp
+            distNetwork1[i, :, 0] = distNetwork1[i, :, 0]/temp
+
+        maxi = np.max(distNetwork2[:, :, 0])
+        distNetwork2[:, :, 0] = distNetwork2[:, :, 0] / maxi
 
         for j in range(0, shape[1]):
             temp = 0;
             for i in range(1,shape[1]):
                 temp += ((self.codebook[i, j] - self.codebook[i-1, j]) ** 2).sum(axis=-1)
-                distNetwork[i, j, 1] = temp
-        maxi = np.max(distNetwork[:,:,1])
-        distNetwork[:, :, 1] = distNetwork[:, :, 1]/maxi
+                distNetwork1[i, j, 1] = temp
+                distNetwork2[i, j, 1] = temp
+            distNetwork1[:, j, 1] = distNetwork1[:, j, 1]/temp
 
-        return distNetwork
+        maxi = np.max(distNetwork2[:, :, 1])
+        distNetwork2[:, :, 1] = distNetwork2[:, :, 1] / maxi
+
+        #distNetwork1 chaque ligne et colone (x y) normalisé indépendamment
+        #distNetwork2 tableau des lignes normalisé par le max des lignes (x), tableau des colones normalisé par le max des colones (y)
+        return distNetwork1,distNetwork2
 
     
 
