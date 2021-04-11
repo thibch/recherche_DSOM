@@ -14,7 +14,8 @@ matplotlib.use('agg')
 
 class NetworkGuiSom():
 
-	def update(self, distanceNetwork1, distanceNetwork2):
+	def update(self, distanceNetwork1, distanceNetwork2,winner):
+
 
 		fig = plt.figure()
 		shape = distanceNetwork1.shape
@@ -23,14 +24,14 @@ class NetworkGuiSom():
 				if(i < shape[0] - 1):
 					x = (distanceNetwork1[i, j , 0], distanceNetwork1[i + 1, j , 0])
 					y = (distanceNetwork1[i, j , 1], distanceNetwork1[i + 1, j , 1])
-					plt.plot(x,y,'b')
+					plt.plot(x,y,'b',zorder = 1)
 				if(j < shape[1] - 1 ):
 					x = (distanceNetwork1[i, j , 0], distanceNetwork1[i, j + 1, 0])
 					y = (distanceNetwork1[i, j , 1], distanceNetwork1[i, j + 1, 1])
-					plt.plot(x,y,'b')
+					plt.plot(x,y,'b',zorder = 1)
 
-		plt.scatter(distanceNetwork1[:, :, 0], distanceNetwork1[:, :, 1])
-
+		plt.scatter(distanceNetwork1[:, :, 0], distanceNetwork1[:, :, 1],zorder = 2)
+		plt.scatter(distanceNetwork1[winner[0], winner[1], 0], distanceNetwork1[winner[0], winner[1], 1], c = 'r',zorder = 2)
 		fig.canvas.draw()
 		img = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
 		img = img.reshape(fig.canvas.get_width_height()[::-1] + (3,))
@@ -45,13 +46,15 @@ class NetworkGuiSom():
 				if(i < shape[0] - 1):
 					x = (distanceNetwork2[i, j , 0], distanceNetwork2[i + 1, j , 0])
 					y = (distanceNetwork2[i, j , 1], distanceNetwork2[i + 1, j , 1])
-					plt.plot(x,y,'b')
+					plt.plot(x,y,'b',zorder = 1)
 				if(j < shape[1] - 1 ):
 					x = (distanceNetwork2[i, j , 0], distanceNetwork2[i, j + 1, 0])
 					y = (distanceNetwork2[i, j , 1], distanceNetwork2[i, j + 1, 1])
-					plt.plot(x,y,'b')
+					plt.plot(x,y,'b',zorder = 1)
 
-		plt.scatter(distanceNetwork2[:, :, 0], distanceNetwork2[:, :, 1])
+		plt.scatter(distanceNetwork2[:, :, 0], distanceNetwork2[:, :, 1],zorder = 2)
+		plt.scatter(distanceNetwork2[winner[0], winner[1], 0], distanceNetwork2[winner[0], winner[1], 1], c = 'r',zorder = 2)
+
 
 		fig.canvas.draw()
 		img = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
