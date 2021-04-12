@@ -129,12 +129,12 @@ class GuiSom():
         #cv2.waitKey()
 
         
-    def get_and_raz_max_last_win():
+    def get_and_raz_max_last_win(self):
         last_winner =  np.unravel_index(np.argmax(self._last_win), self._last_win.shape)
         self._last_win[last_winner] = 0
         return last_winner
 
-    def raz_last_win():
+    def raz_last_win(self):
         self._last_win = np.zeros(self._shape[0:2])
         
     def get_and_raz_last_win(self):
