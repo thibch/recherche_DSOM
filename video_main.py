@@ -178,8 +178,8 @@ if __name__ == '__main__':
 
             errInterface.plot_err(interface.distance)
 
-            net1,net2 = interface.network.distance_network()
-            networkInterface.update(net1,net2,winner)
+            net = interface.network.distance_network()
+            networkInterface.update(net,winner)
 
             if not started:
                 dr.start()
@@ -208,8 +208,8 @@ if __name__ == '__main__':
         help += "\t < h > \t affiche cette aide \n"
         help += "\t < q > \t fermer le programme \n"
 
-        
-        key = cv2.waitKey(1)
+
+        key = cv2.waitKey(30)
         car = chr(key & 255)
         if key == 112 or car=='p':
             while True:
