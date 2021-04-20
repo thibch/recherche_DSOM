@@ -13,6 +13,8 @@ import imutils
 import classifieurs.network as net
 import som_gui as sg
 import err_som_gui as errsg
+import network_som_gui as netsg
+
 
 
 from caracteristique.caracteristique import caracteristique
@@ -107,7 +109,7 @@ if __name__ == '__main__':
 
     salient =  args["salient"]
     #nbFeatures = 110-24 # taille des vecteurs (sourcils + yeux + nez + levres) (-24 : lèvres divisées par deux)
-    
+
     #interest, nbFeatures = define_vector(salient)
 
     # print("[INFO] chargement du predicteur des points de saillances...")
@@ -115,16 +117,17 @@ if __name__ == '__main__':
     FCount = N*N  # number of features
     lmk = landmarks(salient)
     f = args["file"]
-    dr = drawer.fromFile(f, _n=(N*N), _f=FCount, n_first=args["range"], _speed=args["speed"], 
+    dr = drawer.fromFile(f, _n=(N*N), _f=FCount, n_first=args["range"], _speed=args["speed"],
                          _disp=args["display"][:3], pca_samples=args["pca_samples"])
     tailleImage = args["window"]
     nom = "PsyPhiNE"
     cv2.namedWindow(nom)
 
-    interface = sg.GuiSom((N, N, lmk.sizeData), args["elasticity"], args["learning_rate"], 
+    interface = sg.GuiSom((N, N, lmk.sizeData), args["elasticity"], args["learning_rate"],
                           args["initial_method"], "DSOM", width=550)
 
     errInterface = errsg.ErrGuiSom()
+    networkInterface = netsg.NetworkGuiSom()
 
     print(" paramêtres vidéocapture : ", (args["video"], args["camera"])[args["video"] is None])
     vs = cv2.VideoCapture((args["video"], args["camera"])[args["video"] is None])
@@ -137,7 +140,7 @@ if __name__ == '__main__':
 
     print("[INFO] En cours d'execution...")
     print("[INFO] Touche < h > pour la liste des commandes.")
-    
+
     vect = np.zeros((1, FCount))
     vcc = np.zeros((1, FCount))
     i = 0  # compteur de frame
@@ -163,7 +166,7 @@ if __name__ == '__main__':
 
         # extraction des points de saillances
         lmk.extract_landmarks(gray)
-            
+
         # Apprentissage des traits du visage
         if lmk.ready:
             i = i + 1
@@ -175,6 +178,9 @@ if __name__ == '__main__':
 
             errInterface.plot_err(interface.distance)
 
+            net = interface.network.distance_network()
+            networkInterface.update(net,winner)
+
             if not started:
                 dr.start()
                 started = True
@@ -185,13 +191,14 @@ if __name__ == '__main__':
                     (0, 0, 0), 1)
         # affichage de l'image
         cv2.imshow(nom, frame)
-        
+
 
 
         #Mise à jour fenêtre neurones
         #interface.update()
         interface.show_som_view()
         errInterface.show_err_som_view()
+        networkInterface.show_view()
         
         # Attendre la touche 'q' pour sortir
         # ou la touche 'p' pour suspendre le programme
@@ -201,8 +208,8 @@ if __name__ == '__main__':
         help += "\t < h > \t affiche cette aide \n"
         help += "\t < q > \t fermer le programme \n"
 
-        
-        key = cv2.waitKey(1)
+
+        key = cv2.waitKey(30)
         car = chr(key & 255)
         if key == 112 or car=='p':
             while True:

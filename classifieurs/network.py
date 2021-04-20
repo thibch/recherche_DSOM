@@ -108,6 +108,7 @@ class MAP(object):
                  lrate_i=0.500, lrate_f=0.005,
                  lrate=0.1, elasticity=2.0, init_method='random'):
         ''' Build map '''
+
         # Fixed initialization
         if init_method == 'fixed':
             self.codebook = np.ones(shape) * 0.5
@@ -124,6 +125,8 @@ class MAP(object):
             self.codebook = np.random.random(shape)
 
         self.max = 0
+        self.max2 = 0
+
         self.elasticity = elasticity
         self.sigma_i = sigma_i  # Initial neighborhood parameter
         self.sigma_f = sigma_f  # Final neighborhood parameter
@@ -324,6 +327,8 @@ class DSOM(MAP):
         # Dynamic version
         self.max = max(D.max(), self.max)
         d = np.sqrt(D / self.max)
+
+
         #sigma = self.elasticity * d[winner]
         sigma = self.elasticity * d[winner]
 
@@ -331,11 +336,40 @@ class DSOM(MAP):
         G = Gaussian(D.shape, winner, sigma)
         G = np.nan_to_num(G)
 
-        # Move nodes towards data according to Gaussian 
+        # Move nodes towards data according to Gaussian
         delta = (self.codebook - data)
         for i in range(self.codebook.shape[-1]):
             self.codebook[..., i] -= self.lrate * d * G * delta[..., i]
         return winner, d[winner]
+
+    def distance_network(self):
+
+        shape = self.codebook.shape
+
+        distNetwork = np.zeros((shape[0],shape[1],2))
+
+        for i in range(0, shape[0]):
+            temp = 0;
+            for j in range(1,shape[1]):
+                temp += ((self.codebook[i, j] - self.codebook[i, j-1]) ** 2).sum(axis=-1)
+                distNetwork[i, j, 0] = temp
+
+        maxi = np.max(distNetwork[:, :, 0])
+        distNetwork[:, :, 0] = distNetwork[:, :, 0] / maxi
+
+        for j in range(0, shape[1]):
+            temp = 0;
+            for i in range(1,shape[0]):
+                temp += ((self.codebook[i, j] - self.codebook[i-1, j]) ** 2).sum(axis=-1)
+                distNetwork[i, j, 1] = temp
+
+        maxi = np.max(distNetwork[:, :, 1])
+        distNetwork[:, :, 1] = distNetwork[:, :, 1] / maxi
+
+        #distNetwork1 chaque ligne et colone (x y) normalisé indépendamment
+        #distNetwork2 tableau des lignes normalisé par le max des lignes (x), tableau des colones normalisé par le max des colones (y)
+        return distNetwork
+
     
 
 # -----------------------------------------------------------------------------
