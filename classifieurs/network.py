@@ -346,10 +346,9 @@ class DSOM(MAP):
 
         shape = self.codebook.shape
 
+        distNetwork = np.zeros((shape[0],shape[1],2))
 
-        distNetwork = np.zeros((shape[1],shape[1],2))
-
-        for i in range(0, shape[1]):
+        for i in range(0, shape[0]):
             temp = 0;
             for j in range(1,shape[1]):
                 temp += ((self.codebook[i, j] - self.codebook[i, j-1]) ** 2).sum(axis=-1)
@@ -360,7 +359,7 @@ class DSOM(MAP):
 
         for j in range(0, shape[1]):
             temp = 0;
-            for i in range(1,shape[1]):
+            for i in range(1,shape[0]):
                 temp += ((self.codebook[i, j] - self.codebook[i-1, j]) ** 2).sum(axis=-1)
                 distNetwork[i, j, 1] = temp
 
