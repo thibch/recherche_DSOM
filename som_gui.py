@@ -23,7 +23,6 @@ class GuiSom():
         frame = np.full((width, width, 3), 200, np.uint8)    
         return frame
 
-
     def display_neuron(self, neuron):
         vector = self._network.codebook[neuron[0], neuron[1]]
         largeur = self._widthNeuron
@@ -33,13 +32,22 @@ class GuiSom():
     
         ## Mise à blanc du neurone
         neurframe = self.raz_neuron(self._widthNeuron)
-    
+
+        X = 0.09
         if neuron == self._winner:
             color = (0, 0, 255)
+            self._neuron_errors[neuron[0]][neuron[1]].append(X * self._neuron_errors[neuron[0]][neuron[1]][len(self._neuron_errors[neuron[0]][neuron[1]])-1] + (1-X) * self._distance)
+
         else:
             color = (0, 0, 0)
 
-    
+        ## met la couleur de fond du neurone ##default : (200, 200, 200)
+        tempcol = 200+(200*(self._neuron_win_history.count(neuron)/len(self._neuron_win_history)))
+        if( tempcol > 255):
+            tempcol = 255
+        cv2.fillConvexPoly(neurframe, np.array([[0, 0], [0, largeur - 1], [largeur - 1, largeur - 1], [largeur - 1, 0]]), (200, tempcol, 200))
+
+        ## Affiche le contour du rectangle en rouge du neurone gagnant
         cv2.rectangle(neurframe, (0,0), (largeur-1, largeur-1), color)
     
         ## Affichage numéro neuron        
@@ -48,8 +56,13 @@ class GuiSom():
         ## Affichage nb vainqueur neuron       
         cv2.putText(neurframe, "win {}".format(self._win[neuron]), (largeur -30, largeur -3), cv2.FONT_HERSHEY_SIMPLEX, .2,
                     color, 1)
- 
 
+        ## Affichage de la marge d'erreur
+        temp = self._neuron_errors[neuron[0]][neuron[1]]
+        for i in range(len(temp)-1):
+            pt1 = (int((i/len(temp))*largeur), largeur-int(round(temp[i]*largeur)))
+            pt2 = (int(((i+1)/len(temp))*largeur), largeur-int(round(temp[i+1]*largeur)))
+            cv2.line(neurframe, pt1, pt2, (0,0,255))
 
         ## Affichage des points de saillance
         i = 0
@@ -64,8 +77,7 @@ class GuiSom():
             i = i+2
         ## remplacer le neurone dans frame
         self._frame[positionx:(positionx + largeur),positiony:(positiony + largeur)] = neurframe
-    
-    
+
     def display_map (self):
         # print(" [Som Gui] display_map")
         for i in range(self._shape[0]):
@@ -104,6 +116,8 @@ class GuiSom():
 
         self._winner = None
         self._distance   = None
+        self._neuron_errors = [[[0.0] for c in range(shape[0])] for r in range(shape[1])]
+        self._neuron_win_history = []
         self.init_som(initMethod, classe)
         # creer fenetre som
         self.create_som_view()
@@ -147,6 +161,11 @@ class GuiSom():
         sigma = 0
         # print(" [Som Gui] learn")
         self._winner, self._distance = self._network.learn_data(data, self._lrate, sigma, self._elasticity)
+
+        self._neuron_win_history.append(self._winner)
+        if len(self._neuron_win_history) > 250:
+            self._neuron_win_history.pop(0)
+
         # print(" [Som Gui] learn... winner = ",  self._winner)        
         self._win[self._winner] += 1
         self._last_win[self._winner] += 1
